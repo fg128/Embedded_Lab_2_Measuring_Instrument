@@ -20,6 +20,13 @@
 unsigned int    TimerTick;        // global variable to count interrupts
 bit                TimeOver;        // global variable - flag to signal event
 
+typedef struct {
+    uint32 value;
+    uint16 offset;
+    uint16 gain;
+    uint16 mV;
+} ADC;
+ADC adc;
 
 /*------------------------------------------------
 Interrupt service routine for timer 0 interrupt.
@@ -35,17 +42,31 @@ void timer0 (void) interrupt 1         // interrupt vector at 000BH
     }
 }
 
+void adc_calibrate()
+{
+    ADCCON3 = 0x01; // Calibrate offset
+        while((ADCCON3 & 0x01) == 0x01); // Wait until calibration is done
+        adc.offset = ((ADCOFSH & 0x0F) << 8) | ADCOFSH;
+
+    ADCCON3 = 0x03; // Calibrate gain
+        while((ADCCON3 & 0x01) == 0x01); // Wait until calibration is done
+        adc.gain = ((ADCGAINH & 0x0F) << 8) | ADCGAINL;
+}
+
 void adc_setup()
 {
     ADCCON1 = 0xB0;
-    ADCCON2 = 0x00;
+    ADCCON2 = 0x00; // Set to channel 0 output
+        adc_calibrate();
 }
 
-uint16 get_adc_sample()
+uint16 get_adc_value()
 {
-    ADCCON2 |= 0x10;
-    while((ADCCON2 & 0x10) == 0x10);
-    return ((ADCDATAH & 0x0F) << 8) | ADCDATAL;
+      uint16 val;
+    ADCCON2 |= 0x10; // Do one conversion
+    while((ADCCON2 & 0x10) == 0x10); // Wait until ADC is done
+        val = ((ADCDATAH & 0x0F) << 8) | ADCDATAL;
+        return val;
 }
 
 /*------------------------------------------------
@@ -55,21 +76,21 @@ here after stack initialization.
 void main (void)
 {
     // Set up the timer 0 interrupt
-    uint16 sample;
     TH0   = (unsigned char) PERIOD;        // set timer period
     TL0   = (unsigned char) PERIOD;
     TMOD |= 0x02;        // select mode 2
     TR0   = 1;            // start timer 0
     ET0   = 1;            // enable timer 0 interrupt
     EA    = 1;            // global interrupt enable
-    adc_setup();
+  adc_setup();
 
     // After setting up, main goes into an infinite loop
     while (1)
     {
         while(!TimeOver);        // wait until interrupt service routine sets flag
         TimeOver = 0;            // reset the flag
-        sample = get_adc_sample();
+        adc.value = get_adc_value();
+        adc.mV =  adc.value*2500L  / 4096L;
     }
 /*  Note: The TimeOver flag is changed in main and in the ISR.  This is safe here:
     1: The operations should be atomic, as this is a bit variable
