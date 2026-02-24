@@ -1,9 +1,6 @@
-/*  This program demonstrates how to use interrupts and a hardware timer.
-    It uses a bit variable as a flag, to allow the interrupt service routine
-    and the foreground program to communicate in a safe way.   */
-
-#include <ADUC841.H>
 #include "typedef.h"
+#include <ADUC841.H>
+#include "display.h"
 
 #define PERIOD        -250        // 250 clock cycles interrupt period
 /* This negative value will be cast as an unsigned 8-bit integer below, and
@@ -14,10 +11,9 @@
 #define NUM_INTS    11059        // number of interrupts between events
 // This value gives event frequency almost exactly 4 Hz, period 0.25 s
 
-#define LED_BIT        0x10        // position of LED on port 3
 
 // These are global variables: static and available to all functions
-unsigned int    TimerTick;        // global variable to count interrupts
+unsigned int       TimerTick;       // global variable to count interrupts
 bit                TimeOver;        // global variable - flag to signal event
 
 typedef struct {
@@ -26,6 +22,7 @@ typedef struct {
     uint16 gain;
     uint16 mV;
 } ADC;
+
 ADC adc;
 
 /*------------------------------------------------
@@ -45,19 +42,19 @@ void timer0 (void) interrupt 1         // interrupt vector at 000BH
 void adc_calibrate()
 {
     ADCCON3 = 0x01; // Calibrate offset
-        while((ADCCON3 & 0x01) == 0x01); // Wait until calibration is done
-        adc.offset = ((ADCOFSH & 0x0F) << 8) | ADCOFSH;
+    while((ADCCON3 & 0x01) == 0x01); // Wait until calibration is done
+    adc.offset = ((ADCOFSH & 0x0F) << 8) | ADCOFSH;
 
     ADCCON3 = 0x03; // Calibrate gain
-        while((ADCCON3 & 0x01) == 0x01); // Wait until calibration is done
-        adc.gain = ((ADCGAINH & 0x0F) << 8) | ADCGAINL;
+    while((ADCCON3 & 0x01) == 0x01); // Wait until calibration is done
+    adc.gain = ((ADCGAINH & 0x0F) << 8) | ADCGAINL;
 }
 
 void adc_setup()
 {
     ADCCON1 = 0xB0;
     ADCCON2 = 0x00; // Set to channel 0 output
-        adc_calibrate();
+    adc_calibrate();
 }
 
 uint16 get_adc_value()
@@ -69,10 +66,7 @@ uint16 get_adc_value()
         return val;
 }
 
-/*------------------------------------------------
-The main C function.  Program execution starts
-here after stack initialization.
-------------------------------------------------*/
+//MAIN
 void main (void)
 {
     // Set up the timer 0 interrupt
@@ -82,19 +76,21 @@ void main (void)
     TR0   = 1;            // start timer 0
     ET0   = 1;            // enable timer 0 interrupt
     EA    = 1;            // global interrupt enable
-  adc_setup();
 
-    // After setting up, main goes into an infinite loop
+    //Set up ADC
+    adc_setup();
+
+    //set up display
+    init_display();
+
+    // main loop
     while (1)
     {
         while(!TimeOver);        // wait until interrupt service routine sets flag
         TimeOver = 0;            // reset the flag
+
         adc.value = get_adc_value();
         adc.mV =  adc.value*2500L  / 4096L;
     }
-/*  Note: The TimeOver flag is changed in main and in the ISR.  This is safe here:
-    1: The operations should be atomic, as this is a bit variable
-    2: Main only changes the variable just after the ISR has changed it, and
-        the ISR will not change it again for many thousands of clock cycles.  */
 
-}    // end of main
+}
