@@ -6,24 +6,6 @@
 #include "typedef.h"
 #include "display.h"
 
-#define PERIOD		-250		// 250 clock cycles interrupt period
-/* This negative value will be cast as an unsigned 8-bit integer below, and
-   this will result in a timer reload value of 6.  Counting up from that value,
-   the 8-bit timer will overflow after 250 clock cycles.  At a clock frequency
-   of 11.0592 MHz, that gives interrupt frequency 44.2368 kHz, period ~22.6 us.  */
-
-#define NUM_INTS	11059		// number of interrupts between events
-// This value gives event frequency almost exactly 4 Hz, period 0.25 s
-
-#define LED_BIT		0x10		// position of LED on port 3
-
-#define ADC_MODE		1
-#define HERTZ_MODE		2
-#define AMPLITUDE_MODE	4
-
-// These are global variables: static and available to all functions
-unsigned int	TimerTick;		// global variable to count interrupts
-bit				TimeOver;		// global variable - flag to signal event
 
 typedef struct {
 	uint32 value;
@@ -102,12 +84,15 @@ void main (void)
 			case ADC_MODE: // First switch on, read ADC value in mV mode
 				value = get_adc_mv_value();
 				break;
+
 			case HERTZ_MODE: // Second switch on, read hertz value
 				value = get_hertz_value();
 				break;
+
 			case AMPLITUDE_MODE: // Third switch on, read amplitude value
 				value = get_amplitude_value();
 				break;
+
 			default: // All switches off, or more than one switch on, display 0
 				value = 0;
 		}

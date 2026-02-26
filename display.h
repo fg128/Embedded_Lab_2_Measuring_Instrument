@@ -4,6 +4,11 @@
 #include "typedef.h"
 #include <ADUC841.H>
 
+// Mode definitions for display function
+#define ADC_MODE		1
+#define HERTZ_MODE		2
+#define AMPLITUDE_MODE	4
+
 //REGISTERS
 //Digit Resigsters
 #define DIG_0	0x01
@@ -30,6 +35,8 @@
 #define LETTER_U 0x1C
 #define LETTER_M_1 0x76
 #define LETTER_M_2 0x70
+#define LETTER_V 0x1C
+#define LETTER_H 0x37
 
 // Numbers
 #define NUM_1 0x30
