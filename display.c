@@ -1,37 +1,63 @@
 #include "display.h"
 
+
+sbit  LOAD = 0xB1; // TXD P3.0
+
 //writes 1byte of info to a reg
-void write_spi(uint8 reg, uint8 data)
+void write_spi(uint8 address, uint8 data_to_write)
 {
-    //get the 16bits to be sent
-    uint8 datah = reg & 0xF;
-    uint8 datal = data;
+		uint8 i;
+    address = address & 0x0F; // Get 4 address bits for
 
-    //pull line low
-    P2 &= 0x01; //pull P2.1 low TMP not 100% which pin should be used
+    // Set load (P3.0) to 0
+		LOAD = 0;
 
-    //send data
-    SPIDAT= datah; //send 1st byte
-    //ideally this would be counter to stop a forever loop from occuring
-    while((SPICON & 0x80) != 0x80);//wait for transfer to finish
-    SPIDAT = datal;//send 2nd byte
-    while((SPICON & 0x80) != 0x80);//wait for transfer to finish
+    // First send address to select a segment
+    SPIDAT = address; 			  // Send address byte
+		while(!ISPI);     			  // Wait for ISPI to be 1 to indcate finished
+		for(i = 0; i < 10; i++); // Small delay
+		ISPI=0;
 
-    //pull line high
-    P2 |= 0x01; //pull P2.1 high TMP not 100% which pin should be used
+	  // Then send data byte to indicate what to display on segmemt
+    SPIDAT = data_to_write;   // Send data byte
+		while(!ISPI);     			  // Wait for ISPI to be 1 to indcate finished
+		ISPI = 0;
+
+		// Set load (P3.0) to 1
+		LOAD = 1;
 }
 
-void init_display(void)
+void display_number(uint8 digits[], uint8 digits_size)
 {
-    //Need to set bits in the SFR register
-    //set SPE 1, enables SPI
-    //set SPIM 1, SCLK as output (Master mode)
-    //set CPOL 0, CLK ideals low
-    //set CPHA 1, use lead clk edge ? this allows the SS line to be pulled permentally low
-    //set SPR0 to 1 to have bit rate ve f_osc/4
+		uint8 i, digit, segment;
+		uint8 segments[11] = {NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_dot};
+		uint8 dot_pos = 5;
+
+		for(i = 0; i < digits_size; i++)
+		{
+			digit = digits[i];
+			segment = segments[digit];
+			if(i = dot_pos) segment |= 0x80;
+			write_spi(i+1, segment);
+		}
+}
+
+void init_display()
+{
+    // Need to set bits in the SFR register
+    // Set SPE 1, enables SPI
+    // Set SPIM 1, SCLK as output (Master mode)
+    // Set CPOL 0, CLK ideals low
+    // Set CPHA 0, use trail clk edge
+    // Set SPR0 to 1 to have bit rate ve f_osc/4
+		uint8 digits[8] = {6, 7, 8, 9, 0, 1, 2, 4};
 
     //Set SPI configuration
-    SPICON = 0x35;
+		SPE = 1;
+	  SPIM = 1;
+	  CPOL = 0;
+	  CPHA = 0;
+	  SPR0 = 1;
 
     //set no decode mode
     write_spi(DEC_REG, 0x00);
@@ -40,17 +66,11 @@ void init_display(void)
     write_spi(INT_REG, 0x0A); //like half intisity
 
     //set digits 0 1 2 3 4 5 ON
-    write_spi(SCAN_REG, 0x05);
+    write_spi(SCAN_REG, 0x07);
 
-    //write IPSUM
-    write_spi(DIG_0, LETTER_I);
-    write_spi(DIG_1, LETTER_P);
-    write_spi(DIG_2, LETTER_S);
-    write_spi(DIG_3, LETTER_U);
-    write_spi(DIG_4, LETTER_M_1);
-    write_spi(DIG_5, LETTER_M_2);
 
-    //enable the display
+    display_number(digits, 8);
+
+		//enable the display
     write_spi(SHD_REG, 0x01);
-
 }
