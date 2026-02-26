@@ -42,7 +42,7 @@ void display_number(uint8 digits[], uint8 digits_size)
 		}
 }
 
-void init_display()
+void display_setup()
 {
     // Need to set bits in the SFR register
     // Set SPE 1, enables SPI
@@ -50,27 +50,31 @@ void init_display()
     // Set CPOL 0, CLK ideals low
     // Set CPHA 0, use trail clk edge
     // Set SPR0 to 1 to have bit rate ve f_osc/4
-		uint8 digits[8] = {6, 7, 8, 9, 0, 1, 2, 4};
+	uint8 digits[8] = {6, 7, 8, 9, 0, 1, 2, 4};
 
-    //Set SPI configuration
-		SPE = 1;
-	  SPIM = 1;
-	  CPOL = 0;
-	  CPHA = 0;
-	  SPR0 = 1;
+    // Set SPI configuration
+	SPE = 1;
+	SPIM = 1;
+	CPOL = 0;
+	CPHA = 0;
+	SPR0 = 1;
 
-    //set no decode mode
+	// Set load (P3.0) to 1 so is high from start
+	LOAD = 1;
+
+
+    // Set no decode mode
     write_spi(DEC_REG, 0x00);
 
-    //set intensity
-    write_spi(INT_REG, 0x0A); //like half intisity
+    // Set intensity to about half
+    write_spi(INT_REG, 0x0A);
 
-    //set digits 0 1 2 3 4 5 ON
+    // Set digits 0 1 2 3 4 5 ON
     write_spi(SCAN_REG, 0x07);
 
 
     display_number(digits, 8);
 
-		//enable the display
+	// Enable the display
     write_spi(SHD_REG, 0x01);
 }
