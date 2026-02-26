@@ -73,13 +73,13 @@ uint16 get_adc_mv_value()
 
 	// Wait for ADCI flag (Bit 7) to become 1, meaning conversion is done
     while((ADCCON2 & 0x10) == 0x10);
-	ADCCON2 &= ~0x80; // Manually clear the ADCI flag
+	// ADCCON2 &= ~0x80; // Manually clear the ADCI flag
 
 	// Read the 12-bit value raw from the ADC data registers
 	raw = ((ADCDATAH & 0x0F) << 8) | ADCDATAL;
 
 	// Convert raw value to mV
-	mv = raw * 2500L /4096L;
+	mv = raw * 2500L/4096L;
 	return mv;
 }
 
