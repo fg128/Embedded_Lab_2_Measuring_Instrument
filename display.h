@@ -6,7 +6,7 @@
 
 // Mode definitions for display function
 #define ADC_MODE		1
-#define HERTZ_MODE		2
+#define FREQ_MODE		2
 #define AMPLITUDE_MODE	4
 
 //REGISTERS
@@ -53,8 +53,10 @@
 #define NUM_dot 0x80
 
 // Start spi and initalizes the display
-void init_display();
-void write_spi(uint8 reg, uint8 data_to_write);
+void display_setup();
+void write_spi(uint8 address, uint8 data_to_write);
+void write_mode_units(uint8 mode);
+void display(uint16 value, uint8 mode);
 
 
 #endif

@@ -5,6 +5,7 @@
 #include <ADUC841.H>
 #include "typedef.h"
 #include "display.h"
+#include "frequency_mode.h"
 
 typedef struct {
 	uint32 value;
@@ -58,6 +59,7 @@ void main (void)
 	// Setup adc and display settings before going into the main loop
     adc_setup();
 	display_setup();
+	setup_frequency_timers();
 
 	// After setting up, main goes into an infinite loop
 	while (1)
@@ -70,8 +72,8 @@ void main (void)
 				value = get_adc_mv_value();
 				break;
 
-			case HERTZ_MODE: // Second switch on, read hertz value
-				value = get_hertz_value();
+			case FREQ_MODE: // Second switch on, read frequency value in Hz
+				value = get_frequency_value();
 				break;
 
 			case AMPLITUDE_MODE: // Third switch on, read amplitude value
