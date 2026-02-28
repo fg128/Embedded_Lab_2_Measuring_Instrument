@@ -7,3 +7,5 @@
 void adc_calibrate();
 void adc_setup();
 uint16 get_adc_mv_value();
+
+#endif

@@ -33,7 +33,7 @@ void main (void)
 				value = get_frequency_value();
 				break;
 
-			case AMPLITUDE_MODE: // Third switch on, read amplitude value
+			case AMP_MODE: // Third switch on, read amplitude value
 				value = get_amplitude_value();
 				break;
 

@@ -4,11 +4,6 @@
 #include "typedef.h"
 #include <ADUC841.H>
 
-// Mode definitions for display function
-#define ADC_MODE		1
-#define FREQ_MODE		2
-#define AMPLITUDE_MODE	4
-
 //REGISTERS
 //Digit Resigsters
 #define DIG_0	0x01
@@ -25,7 +20,6 @@
 #define INT_REG  0x0A // Intensity Register
 #define SCAN_REG 0x0B // Scan Limit Register
 #define SHD_REG  0x0C // Shitdown Register
-
 
 // 7-SEG definations
 // Letters

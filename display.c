@@ -1,4 +1,5 @@
 #include "display.h"
+#include "typedef.h"
 
 
 sbit  LOAD = 0xB1; // TXD P3.0
@@ -68,11 +69,11 @@ void write_mode_units(uint8 mode)
 			write_spi(DIG_7, LETTER_V);
 			break;
 
-		case HERTZ_MODE:
+		case FREQ_MODE:
 			write_spi(DIG_7, LETTER_H);
 			break;
 
-		case AMPLITUDE_MODE:
+		case AMP_MODE:
 			write_spi(DIG_5, LETTER_V);
 			write_spi(DIG_6, LETTER_P);
 			write_spi(DIG_7, LETTER_P);

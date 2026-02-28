@@ -7,7 +7,6 @@ typedef struct {
 	uint16 gain;
 	uint32 mV;
 } ADC;
-
 ADC adc;
 
 

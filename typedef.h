@@ -9,4 +9,10 @@ typedef   signed short int   int16;
 typedef unsigned long  int  uint32;
 typedef   signed long  int   int32;
 
+
+// Mode definitions used throughout the program
+#define ADC_MODE		1
+#define FREQ_MODE		2
+#define AMP_MODE	    4
+
 #endif
