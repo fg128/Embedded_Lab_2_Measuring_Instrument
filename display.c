@@ -92,6 +92,7 @@ void display(uint16 value, uint8 mode)
 	uint8 segments[11] = {NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_dot};
 	uint8 dot_pos = 5;
 
+	// Extract each digit from the value and write to the corresponding display segment
 	for(i = 0; i < 5; i++)
 	{
 		// Extract the least significant digit
@@ -106,7 +107,7 @@ void display(uint16 value, uint8 mode)
 		write_spi(i+1, segment);
 	}
 
-	// Depending on the mode write the appropriate units
+	// Write units to display depending on mode
 	write_mode_units(mode);
 
 	// Enable the display

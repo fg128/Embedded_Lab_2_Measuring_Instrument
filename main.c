@@ -6,7 +6,6 @@
 #include "typedef.h"
 #include "display.h"
 
-
 typedef struct {
 	uint32 value;
 	uint16 offset;
@@ -15,20 +14,6 @@ typedef struct {
 } ADC;
 
 ADC adc;
-
-/*------------------------------------------------
-Interrupt service routine for timer 0 interrupt.
-"Called" by the hardware when the interrupt occurs.
-------------------------------------------------*/
-void timer0 (void) interrupt 1 		// interrupt vector at 000BH
-{
-	TimerTick++;					// increment interrupt counter
-	if (TimerTick > NUM_INTS) 		// if enough interrupts have been counted
-	{
-		TimerTick = 0;				// reset the counter
-		TimeOver  = 1;				// set the flag - event has occurred
-	}
-}
 
 void adc_calibrate()
 {
