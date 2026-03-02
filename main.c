@@ -14,7 +14,7 @@ void main (void)
 	uint16 value;
 
 	// Setup adc and display settings before going into the main loop
-    adc_setup();
+  adc_setup();
 	display_setup();
 	setup_frequency_timers();
 
@@ -25,8 +25,8 @@ void main (void)
 
 		switch(mode)
 		{
-			case ADC_MODE: // First switch on, read ADC value in mV mode
-				value = get_adc_mv_value();
+			case DC_MODE: // First switch on, read ADC value in mV mode
+				value = get_mDC_value();
 				break;
 
 			case FREQ_MODE: // Second switch on, read frequency value in Hz
@@ -34,7 +34,7 @@ void main (void)
 				break;
 
 			case AMP_MODE: // Third switch on, read amplitude value
-				value = get_amplitude_value();
+				value = get_amplitiude_value()
 				break;
 
 			default: // All switches off, or more than one switch on, display 0

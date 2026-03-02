@@ -1,6 +1,6 @@
 #include "display.h"
 #include "typedef.h"
-
+#include "frequency_mode.h"
 
 sbit  LOAD = 0xB1; // TXD P3.0
 
@@ -12,7 +12,6 @@ void display_setup()
     // Set CPOL 0, CLK ideals low
     // Set CPHA 0, use trail clk edge
     // Set SPR0 to 1 to have bit rate ve f_osc/4
-	uint8 digits[8] = {6, 7, 8, 9, 0, 1, 2, 4};
 
     // Set SPI configuration
 	SPE = 1;
@@ -38,7 +37,7 @@ void display_setup()
 void write_spi(uint8 address, uint8 data_to_write)
 {
 	uint8 i;
-    address = address & 0x0F; 	  // Get 4 address bits for
+  address = address & 0x0F; 	  // Get 4 address bits for
 
     // Set load (P3.0) to 0
 	LOAD = 0;
@@ -63,14 +62,15 @@ void write_mode_units(uint8 mode)
 {
 	switch(mode)
 	{
-		case ADC_MODE:
+		case DC_MODE:
 			write_spi(DIG_5, LETTER_M_1);
 			write_spi(DIG_6, LETTER_M_2);
 			write_spi(DIG_7, LETTER_V);
 			break;
 
 		case FREQ_MODE:
-			write_spi(DIG_7, LETTER_H);
+			write_spi(DIG_6, LETTER_H);
+			write_spi(DIG_7, LETTER_S);
 			break;
 
 		case AMP_MODE:
@@ -91,7 +91,9 @@ void display(uint16 value, uint8 mode)
 {
 	uint8 i, digit, segment;
 	uint8 segments[11] = {NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_dot};
-	uint8 dot_pos = 5;
+
+	//turn off the display so digits appear at once
+  write_spi(SHD_REG, 0x00);
 
 	// Extract each digit from the value and write to the corresponding display segment
 	for(i = 0; i < 5; i++)
@@ -100,9 +102,12 @@ void display(uint16 value, uint8 mode)
 		digit = value % 10;
 		value /= 10;
 
-		// Get the segment pattern for the digit, and add the dot if needed
+		// Get the segment pattern for the digit
 		segment = segments[digit];
-		if(i == dot_pos) segment |= 0x80;
+
+		//Since Amp mode is in V add a dot
+		if( (mode == AMP_MODE) && (i == 0) ) segment |= 0x80;
+		//^ this is so anyyoinh I think we should do 2 loops, or figure a better way
 
 		// Write the segment pattern to the corresponding display segment
 		write_spi(i+1, segment);
@@ -112,7 +117,7 @@ void display(uint16 value, uint8 mode)
 	write_mode_units(mode);
 
 	// Enable the display
-    write_spi(SHD_REG, 0x01);
+  write_spi(SHD_REG, 0x01);
 }
 
 

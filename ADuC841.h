@@ -1,3 +1,5 @@
+#ifndef ADUC841_H
+#define ADUC841_H
 /*REV. 1.1    March 2003
   ADuC842  Apps, Analog Devices Inc.*/
 
@@ -191,3 +193,5 @@ sbit  CPOL      = 0xFB;
 sbit  CPHA      = 0xFA;
 sbit  SPR1      = 0xF9;
 sbit  SPR0      = 0xF8;
+
+#endif

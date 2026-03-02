@@ -4,8 +4,21 @@
 #include "typedef.h"
 #include <ADUC841.H>
 
-void adc_calibrate();
-void adc_setup();
-uint16 get_adc_mv_value();
+#define ADC_AVG 5 //number of adc values to average together
+
+//struct to store adc values
+// if we are not using calibration values this is useless
+typedef struct {
+	uint32 value;
+	uint32 mV;
+	uint16 offset;
+	uint16 gain;
+} ADC;
+
+
+//functions
+void adc_calibrate(); //calibrates the adc, gets offset and gain error
+void adc_setup();			//sets up adc
+uint16 get_adc_value(); //gets raw adc value
 
 #endif
