@@ -68,7 +68,7 @@ void setup_frequency_timers()
     TH0   = (unsigned char) PERIOD;		// set timer period
     TL0   = (unsigned char) PERIOD;
     TMOD |= 0x02;		                // select mode 2
-    TR0   = 0;			                // start timer 0
+    TR0   = 0;			                // OFF timer 0 (should be off until we start counting)
     ET0   = 1;			                // enable timer 0 interrupt
     EA    = 1;			                // global interrupt enable
 
@@ -95,7 +95,7 @@ uint16 get_frequency_value()
 uint16 get_amplitiude_value()
 {
     uint16 adc_max = 0;
-    uint16 adc_min = 0;
+    uint16 adc_min = 0xFFFF; //ADC value is always positive, so we can initialize min to max value, and max to min value, and then update them as we read values from the ADC.
     uint32 peak    = 0;
     uint16 adc_value = 0;
 
