@@ -17,6 +17,7 @@ void main (void)
   adc_setup();
 	display_setup();
 	setup_frequency_timers();
+	P2 = 0xFF;
 
 	// After setting up, main goes into an infinite loop
 	while (1)
