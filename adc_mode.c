@@ -43,7 +43,7 @@ uint16 get_adc_value()
 		ADCCON2 |= 0x10; // Trigger single conversion (Sets SCONV, Bit 4)
 
 		// Wait for ADCI flag (Bit 7) to become 1, meaning conversion is done
-		while((ADCCON2 & 0x10) == 0x10);
+		while((ADCCON2 & 0x80) == 0x01);
 		// ADCCON2 &= ~0x80; // Manually clear the ADCI flag
 
 		// Read the 12-bit value raw from the ADC data registers

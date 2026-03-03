@@ -108,9 +108,9 @@ uint16 get_amplitiude_value()
     //while timer 0 is counting
     while(!period_over)
     {
-        adc_value = get_adc_value; //with an averaging of 5, this in theory should be 55 KHz
+        adc_value = get_adc_value(); //with an averaging of 5, this in theory should be 55 KHz
 
-        //compare pervoius adc_value
+        //compare previous adc_value
         adc_max = adc_value > adc_max ? adc_value : adc_max;
         adc_min = adc_value < adc_min ? adc_value : adc_min;
     }

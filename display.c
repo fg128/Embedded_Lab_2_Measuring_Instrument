@@ -106,7 +106,10 @@ void display(uint16 value, uint8 mode)
 		segment = segments[digit];
 
 		//Since Amp mode is in V add a dot
-		if( (mode == AMP_MODE) && (i == 0) ) segment |= NUM_dot;
+		if( (mode == AMP_MODE) && (i == 0) ) 
+		{
+			segment |= NUM_dot;
+		}
 		//^ this is so anyyoinh I think we should do 2 loops, or figure a better way
 
 		// Write the segment pattern to the corresponding display segment
