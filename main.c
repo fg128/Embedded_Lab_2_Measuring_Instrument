@@ -34,7 +34,7 @@ void main (void)
 				break;
 
 			case AMP_MODE: // Third switch on, read amplitude value
-				value = get_amplitiude_value()
+				value = get_amplitiude_value();
 				break;
 
 			default: // All switches off, or more than one switch on, display 0
