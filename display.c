@@ -6,11 +6,11 @@ sbit  LOAD = 0xB1; // TXD P3.0
 
 void display_setup()
 {
-    // Need to set bits in the SFR register
+    // Need to set bits in the SFR register SPICON to configure SPI settings
     // Set SPE 1, enables SPI
-    // Set SPIM 1, SCLK as output (Master mode)
-    // Set CPOL 0, CLK ideals low
-    // Set CPHA 0, use trail clk edge
+    // Set SPIM 1, SCLK is configured as an output (Master mode)
+    // Set CPOL 0, CLK idles low
+    // Set CPHA 0, use trail clk edge to transmit data
     // Set SPR0 to 1 to have bit rate ve f_osc/4
 
     // Set SPI configuration
@@ -106,7 +106,7 @@ void display(uint16 value, uint8 mode)
 		segment = segments[digit];
 
 		//Since Amp mode is in V add a dot
-		if( (mode == AMP_MODE) && (i == 0) ) segment |= 0x80;
+		if( (mode == AMP_MODE) && (i == 0) ) segment |= NUM_dot;
 		//^ this is so anyyoinh I think we should do 2 loops, or figure a better way
 
 		// Write the segment pattern to the corresponding display segment

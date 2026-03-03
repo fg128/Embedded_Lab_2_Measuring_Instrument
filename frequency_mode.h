@@ -6,7 +6,7 @@
 typedef enum{
 	DC_MODE 	= 0x01,
 	FREQ_MODE = 0x02,
-	AMP_MODE 	= 0x03,
+	AMP_MODE 	= 0x04,
 } MODE;
 
 void setup_frequency_timers();

@@ -132,7 +132,7 @@ uint16 get_mDC_value()
     //select adc channel 1
     ADCCON2 = 0x01;
 
-    adc_value = get_adc_value;
+    adc_value = get_adc_value();
 
 	  // Convert raw value to mV
 	  mv = adc_value * 2500L/4096L;

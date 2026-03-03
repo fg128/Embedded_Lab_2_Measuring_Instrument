@@ -35,7 +35,7 @@ void adc_setup()
 
 uint16 get_adc_value()
 {
-	uint32 avg;
+	uint32 avg = 0;
 	uint8 i = 0;
 
 	for(i = 0; i < ADC_AVG; i++)
