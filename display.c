@@ -2,7 +2,7 @@
 #include "typedef.h"
 #include "frequency_mode.h"
 
-sbit  LOAD = 0xB1; // TXD P3.0
+sbit  LOAD = 0xB2; // P3.2
 
 void display_setup()
 {
@@ -14,14 +14,14 @@ void display_setup()
     // Set SPR0 to 1 to have bit rate ve f_osc/4
 
     // Set SPI configuration
-	SPE = 1;
-	SPIM = 1;
-	CPOL = 0;
-	CPHA = 0;
-	SPR0 = 1;
+		SPIM = 1;
+		CPOL = 0;
+		CPHA = 0;
+		SPR0 = 1;
+		SPE = 1;
 
-	// Set load (P3.0) to 1 so is high from start instead of floating
-	LOAD = 1;
+		// Set load (P3.2) to 1 so is high from start instead of floating
+		LOAD = 1;
 
     // Set no decode mode
     write_spi(DEC_REG, 0x00);
@@ -36,21 +36,22 @@ void display_setup()
 // Writes 1 byte of info to a reg
 void write_spi(uint8 address, uint8 data_to_write)
 {
-	uint8 i;
+	volatile uint8 i;
   address = address & 0x0F; 	  // Get 4 address bits for
 
-    // Set load (P3.0) to 0
+  // Set load (P3.0) to 0
 	LOAD = 0;
 
-    // First send address to select a segment
-    SPIDAT = address; 			  // Send address byte
+  // First send address to select a segment
+  SPIDAT = address; 			  // Send address byte
 	while(!ISPI);     			  // Wait for ISPI to be 1 to indcate finished
 	for(i = 0; i < 10; i++); 	  // Small delay
 	ISPI=0;
 
 	// Then send data byte to indicate what to display on segmemt
-    SPIDAT = data_to_write;   	  // Send data byte
+  SPIDAT = data_to_write;   	  // Send data byte
 	while(!ISPI);     			  // Wait for ISPI to be 1 to indcate finished
+	for(i = 0; i < 10; i++); 	  // Small delay
 	ISPI = 0;
 
 	// Set load (P3.0) to 1
@@ -63,26 +64,27 @@ void write_mode_units(uint8 mode)
 	switch(mode)
 	{
 		case DC_MODE:
-			write_spi(DIG_5, LETTER_M_1);
-			write_spi(DIG_6, LETTER_M_2);
-			write_spi(DIG_7, LETTER_V);
+			write_spi(DIG_2, LETTER_M_1);
+			write_spi(DIG_1, LETTER_M_2);
+			write_spi(DIG_0, LETTER_V);
 			break;
 
 		case FREQ_MODE:
-			write_spi(DIG_6, LETTER_H);
-			write_spi(DIG_7, LETTER_S);
+			write_spi(DIG_2, 0x00);
+			write_spi(DIG_1, LETTER_H);
+			write_spi(DIG_0, LETTER_Z);
 			break;
 
 		case AMP_MODE:
-			write_spi(DIG_5, LETTER_V);
-			write_spi(DIG_6, LETTER_P);
-			write_spi(DIG_7, LETTER_P);
+			write_spi(DIG_2, LETTER_V);
+			write_spi(DIG_1, LETTER_P);
+			write_spi(DIG_0, LETTER_P);
 			break;
 
 		default: // All switches off, or more than one switch on, display 0
-			write_spi(DIG_5, 0x00);
-			write_spi(DIG_6, 0x00);
-			write_spi(DIG_7, 0x00);
+			write_spi(DIG_2, 0x00);
+			write_spi(DIG_1, 0x00);
+			write_spi(DIG_0, 0x00);
 	}
 }
 
@@ -92,11 +94,11 @@ void display(uint16 value, uint8 mode)
 	uint8 i, digit, segment;
 	uint8 segments[11] = {NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, NUM_dot};
 
-	//turn off the display so digits appear at once
-  write_spi(SHD_REG, 0x00);
+	// Turn off the display so digits appear at once
+  	write_spi(SHD_REG, 0x01);
 
 	// Extract each digit from the value and write to the corresponding display segment
-	for(i = 0; i < 5; i++)
+	for(i = 3; i < 8; i++)
 	{
 		// Extract the least significant digit
 		digit = value % 10;
@@ -105,8 +107,8 @@ void display(uint16 value, uint8 mode)
 		// Get the segment pattern for the digit
 		segment = segments[digit];
 
-		//Since Amp mode is in V add a dot
-		if( (mode == AMP_MODE) && (i == 0) ) 
+		// Since Amp mode is in V add a dot
+		if((mode == AMP_MODE) && (i == 6))
 		{
 			segment |= NUM_dot;
 		}
@@ -120,7 +122,6 @@ void display(uint16 value, uint8 mode)
 	write_mode_units(mode);
 
 	// Enable the display
-  write_spi(SHD_REG, 0x01);
+  	write_spi(SHD_REG, 0x01);
 }
-
 

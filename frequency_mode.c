@@ -13,14 +13,14 @@
    the 8-bit timer will overflow after 250 clock cycles.  At a clock frequency
    of 11.0592 MHz, that gives interrupt frequency 44.2368 kHz, period ~22.6 us.  */
 
-#define NUM_INTS	4424		// number of interrupts between events
+#define NUM_INTS	44240		// number of interrupts between events
 // This value gives event frequency almost exactly 10 Hz, period 0.1 s
 
 // These are global variables: static and available to all functions
 sfr16 RCAP2 = 0xCA;                 // Timer 2 reload register, 16-bit
 bit		period_over;		        // global variable - flag to signal event
 uint16	period_count;		        // global variable to count interrupts
-uint16  schmitt_count;	            // global variable - number of timer2 interrupts in one period
+uint32  schmitt_count;	            // global variable - number of timer2 interrupts in one period
 uint16  frequency;		            // global variable - estimated frequency in Hz
 
 
@@ -33,8 +33,8 @@ void timer0 (void) interrupt 1 		    // interrupt vector at 000BH
     {
         period_count = 0;			// reset the counter
         period_over  = 1;			// set the flag - 0.1s has passed
-        //turn off the timer
 
+				// Turn off the timer
         TR0 = 0;
     }
 }
@@ -43,16 +43,7 @@ void timer0 (void) interrupt 1 		    // interrupt vector at 000BH
 // Timer 2 counts the number of schmitt trigger edges in the input signal during each 0.1s period.
 void timer2 (void) interrupt 5
 {
-	if (period_over)
-    {
-        frequency = schmitt_count * 10;	// calculate frequency in Hz, based on period count and interrupt period
-        schmitt_count = 0;	            // reset the schmitt count for the next 0.1s period
-        period_over = 0;                // reset the flag to start the next 0.1s period
-    }
-    else
-    {
-        schmitt_count++;                // increment the schmitt edge count for this period
-    }
+    schmitt_count++;                // increment the schmitt edge count for this period
     TF2 = 0;					        // clear interrupt flag
 }	// end timer2 interrupt service routine
 
@@ -81,10 +72,15 @@ void setup_frequency_timers()
 
 uint16 get_frequency_value()
 {
-    TR0   = 1;			        // start timer 0
+    TR0   = 1;			    // Start timer 0
     ET2   = 1;              // enable timer 2 interrupt
-    while(!period_over);    //wait for the timer to finish
-    ET2   = 0;              //turn off timer 2 interrupt
+	P1 		= 0x00;         // Start P1
+    while(!period_over);    // Wait for the timer to finish
+    ET2   = 0;              // Turn off timer 2 interrupt
+
+	frequency = schmitt_count;	// calculate frequency in Hz, based on period count and interrupt period
+    schmitt_count = 0;	        // reset the schmitt count for the next 0.1s period
+    period_over = 0;            // reset the period over flag for the next period
 
     return frequency;
 }
@@ -94,45 +90,48 @@ uint16 get_frequency_value()
 //the circuit should insure this dos not happen but idk, will have to test
 uint16 get_amplitiude_value()
 {
+	// ADC value is always positive, so we can initialize min to max value,
+	// and max to min value, and then update them as we read values from the ADC.
     uint16 adc_max = 0;
-    uint16 adc_min = 0xFFFF; //ADC value is always positive, so we can initialize min to max value, and max to min value, and then update them as we read values from the ADC.
+    uint16 adc_min = 0xFFFF;
     uint32 peak    = 0;
     uint16 adc_value = 0;
 
-    //select adc channel 1
+    // Select adc channel 1
     ADCCON2 = 0x01;
 
-    //start timer 0
+    // Start timer 0
     TR0 = 1;
 
-    //while timer 0 is counting
+    // While timer 0 is counting
     while(!period_over)
     {
-        adc_value = get_adc_value(); //with an averaging of 5, this in theory should be 55 KHz
+        adc_value = get_adc_value(1); //with an averaging of 5, this in theory should be 55 KHz
 
-        //compare previous adc_value
+        // Compare previous adc_value
         adc_max = adc_value > adc_max ? adc_value : adc_max;
         adc_min = adc_value < adc_min ? adc_value : adc_min;
     }
-
-    //Need to double check this, some nuances with the circuit
+	period_over = 0;
+    
+    // Need to double check this, some nuances with the circuit
     peak = 2*(adc_max - adc_min);
 
-    //convert peak to mv
+    // Convert peak to mv
 	  peak = peak * 2500L/4096L;
     return (uint16) peak;
 }
 
-//gets DC value in mv
+// Gets DC value in mv
 uint16 get_mDC_value()
 {
     uint16 adc_value = 0;
     uint32 mv = 0;
 
-    //select adc channel 1
-    ADCCON2 = 0x01;
+    // Select adc channel 0
+    ADCCON2 = 0x02;
 
-    adc_value = get_adc_value();
+    adc_value = get_adc_value(10);
 
 	  // Convert raw value to mV
 	  mv = adc_value * 2500L/4096L;

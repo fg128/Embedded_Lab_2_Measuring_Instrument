@@ -23,13 +23,13 @@
 
 // 7-SEG definations
 // Letters
-#define LETTER_I 0x06
 #define LETTER_P 0x67
 #define LETTER_S 0x5B
+#define LETTER_Z 0x6D
 #define LETTER_U 0x1C
-#define LETTER_M_1 0x76
-#define LETTER_M_2 0x70
-#define LETTER_V 0x1C
+#define LETTER_M_1 0x15
+#define LETTER_M_2 0x11
+#define LETTER_V 0x3e
 #define LETTER_H 0x37
 
 // Numbers

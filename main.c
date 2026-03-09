@@ -11,7 +11,7 @@
 void main (void)
 {
 	uint8 mode;
-	uint16 value;
+	uint16 value, i, test = 0;
 
 	// Setup adc and display settings before going into the main loop
   adc_setup();
@@ -27,6 +27,7 @@ void main (void)
 		switch(mode)
 		{
 			case DC_MODE: // First switch on, read ADC value in mV mode
+				for(i = 0; i < 60000; i++);
 				value = get_mDC_value();
 				break;
 
@@ -39,7 +40,9 @@ void main (void)
 				break;
 
 			default: // All switches off, or more than one switch on, display 0
-				value = 0;
+				value = test;
+				test++;
+				break;
 		}
 
 		display(value, mode);

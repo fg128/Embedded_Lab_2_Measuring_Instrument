@@ -19,6 +19,6 @@ typedef struct {
 //functions
 void adc_calibrate(); //calibrates the adc, gets offset and gain error
 void adc_setup();			//sets up adc
-uint16 get_adc_value(); //gets raw adc value
+uint16 get_adc_value(uint8 num_samples); //gets raw adc value
 
 #endif
