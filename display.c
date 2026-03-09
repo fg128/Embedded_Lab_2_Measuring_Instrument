@@ -1,6 +1,6 @@
 #include "display.h"
 #include "typedef.h"
-#include "frequency_mode.h"
+#include "measurements.h"
 
 sbit  LOAD = 0xB2; // P3.2
 

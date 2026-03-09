@@ -1,11 +1,7 @@
-/*  This program demonstrates how to use interrupts and a hardware timer.
-	It uses a bit variable as a flag, to allow the interrupt service routine
-	and the foreground program to communicate in a safe way.   */
-
 #include <ADUC841.H>
 #include "typedef.h"
-#include "adc_mode.h"
-
+#include "adc_interactions.h"
+#include "measurements.h"
 
 #define PERIOD		-250		// 250 clock cycles interrupt period
 /* This negative value will be cast as an unsigned 8-bit integer below, and
@@ -113,7 +109,7 @@ uint16 get_amplitiude_value()
         adc_min = adc_value < adc_min ? adc_value : adc_min;
     }
 	period_over = 0;
-    
+
     // Need to double check this, some nuances with the circuit
     peak = 2*(adc_max - adc_min);
 

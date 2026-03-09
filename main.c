@@ -5,8 +5,8 @@
 #include <ADUC841.H>
 #include "typedef.h"
 #include "display.h"
-#include "frequency_mode.h"
-#include "adc_mode.h"
+#include "measurements.h"
+#include "adc_interactions.h"
 
 void main (void)
 {

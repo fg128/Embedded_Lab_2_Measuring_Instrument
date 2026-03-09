@@ -1,6 +1,6 @@
 #include <ADUC841.H>
 #include "typedef.h"
-#include "adc_mode.h"
+#include "adc_interactions.h"
 
 // Global struct to store adc values
 ADC adc;
